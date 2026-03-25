@@ -470,6 +470,30 @@
         document.querySelectorAll('input[type="text"]').forEach(input => {
             input.addEventListener('input', () => autoShrinkFont(input));
         });
+
+        // Before printing, replace date inputs with text showing full DD/MM/YYYY
+        window.addEventListener('beforeprint', () => {
+            document.querySelectorAll('input[type="date"]').forEach(input => {
+                const val = input.value; // YYYY-MM-DD
+                if (val) {
+                    const [y, m, d] = val.split('-');
+                    input.dataset.printOriginal = val;
+                    input.type = 'text';
+                    input.value = `${d}/${m}/${y}`;
+                    autoShrinkFont(input);
+                }
+            });
+        });
+
+        window.addEventListener('afterprint', () => {
+            document.querySelectorAll('input[type="text"]').forEach(input => {
+                if (input.dataset.printOriginal !== undefined) {
+                    input.value = input.dataset.printOriginal;
+                    input.type = 'date';
+                    delete input.dataset.printOriginal;
+                }
+            });
+        });
     </script>
 </body>
 </html>
